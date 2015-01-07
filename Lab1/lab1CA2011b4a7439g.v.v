@@ -1,0 +1,133 @@
+module D_ff(input clk, input reset, input regWrite, input decOut1b, input d,output reg q);
+  always@(negedge clk)
+  begin
+    if(reset==1)
+      q=0;
+    else
+      if(regWrite == 1 && decOut1b == 1)
+        begin
+          q = d;
+        end
+  end
+endmodule
+
+module register32bit(input clk, input reset, input regWrite, input decOut1b,input[31:0] writeData, output [31:0] outR);
+  D_ff a0(clk,reset,regWrite,decOut1b,writeData[0],outR[0]);
+  D_ff a1(clk,reset,regWrite,decOut1b,writeData[1],outR[1]);
+  D_ff a2(clk,reset,regWrite,decOut1b,writeData[2],outR[2]);
+  D_ff a3(clk,reset,regWrite,decOut1b,writeData[3],outR[3]);
+  D_ff a4(clk,reset,regWrite,decOut1b,writeData[4],outR[4]);
+  D_ff a5(clk,reset,regWrite,decOut1b,writeData[5],outR[5]);
+  D_ff a6(clk,reset,regWrite,decOut1b,writeData[6],outR[6]);
+  D_ff a7(clk,reset,regWrite,decOut1b,writeData[7],outR[7]);
+  D_ff a8(clk,reset,regWrite,decOut1b,writeData[8],outR[8]);
+  D_ff a9(clk,reset,regWrite,decOut1b,writeData[9],outR[9]);
+  D_ff a10(clk,reset,regWrite,decOut1b,writeData[10],outR[10]);
+  D_ff a11(clk,reset,regWrite,decOut1b,writeData[11],outR[11]);
+  D_ff a12(clk,reset,regWrite,decOut1b,writeData[12],outR[12]);
+  D_ff a13(clk,reset,regWrite,decOut1b,writeData[13],outR[13]);
+  D_ff a14(clk,reset,regWrite,decOut1b,writeData[14],outR[14]);
+  D_ff a15(clk,reset,regWrite,decOut1b,writeData[15],outR[15]);
+  D_ff a16(clk,reset,regWrite,decOut1b,writeData[16],outR[16]);
+  D_ff a17(clk,reset,regWrite,decOut1b,writeData[17],outR[17]);
+  D_ff a18(clk,reset,regWrite,decOut1b,writeData[18],outR[18]);
+  D_ff a19(clk,reset,regWrite,decOut1b,writeData[19],outR[19]);
+  D_ff a20(clk,reset,regWrite,decOut1b,writeData[20],outR[20]);
+  D_ff a21(clk,reset,regWrite,decOut1b,writeData[21],outR[21]);
+  D_ff a22(clk,reset,regWrite,decOut1b,writeData[22],outR[22]);
+  D_ff a23(clk,reset,regWrite,decOut1b,writeData[23],outR[23]);
+  D_ff a24(clk,reset,regWrite,decOut1b,writeData[24],outR[24]);
+  D_ff a25(clk,reset,regWrite,decOut1b,writeData[25],outR[25]);
+  D_ff a26(clk,reset,regWrite,decOut1b,writeData[26],outR[26]);
+  D_ff a27(clk,reset,regWrite,decOut1b,writeData[27],outR[27]);
+  D_ff a28(clk,reset,regWrite,decOut1b,writeData[28],outR[28]);
+  D_ff a29(clk,reset,regWrite,decOut1b,writeData[29],outR[29]);
+  D_ff a30(clk,reset,regWrite,decOut1b,writeData[30],outR[30]);
+  D_ff a31(clk,reset,regWrite,decOut1b,writeData[31],outR[31]);
+  
+endmodule
+
+
+module registerSet(input clk, input reset, input regWrite, input [7:0] decOut,input [31:0] writeData,output [31:0] outR0, outR1, outR2,outR3,outR4,outR5,outR6,outR7);
+  register32bit r0(clk,reset,regWrite,decOut[0],writeData,outR0);
+  register32bit r1(clk,reset,regWrite,decOut[1],writeData,outR1);
+  register32bit r2(clk,reset,regWrite,decOut[2],writeData,outR2);
+  register32bit r3(clk,reset,regWrite,decOut[3],writeData,outR3);
+  register32bit r4(clk,reset,regWrite,decOut[4],writeData,outR4);
+  register32bit r5(clk,reset,regWrite,decOut[5],writeData,outR5);
+  register32bit r6(clk,reset,regWrite,decOut[6],writeData,outR6);
+  register32bit r7(clk,reset,regWrite,decOut[7],writeData,outR7);
+endmodule
+
+
+module decoder(input[2:0] destReg, output reg [7:0] decOut);
+  always@(destReg[0] or destReg[1] or destReg[2])
+  begin
+    case(destReg)
+      3'b000: decOut = 8'b00000001;
+      3'b001: decOut = 8'b00000010;
+      3'b010: decOut = 8'b00000100;
+      3'b011: decOut = 8'b00001000;
+      3'b100: decOut = 8'b00010000;
+      3'b101: decOut = 8'b00100000;
+      3'b110: decOut = 8'b01000000;
+      3'b111: decOut = 8'b10000000;
+    endcase
+  end
+endmodule
+
+module mux8to1(input [31:0] outR0,outR1,outR2,outR3,outR4,outR5,outR6,outR7,input [2:0] Sel,output reg [31:0] outBus);
+  always @ (Sel or outR0 or outR1 or outR2 or outR3 or outR4 or outR5 or outR6 or outR7)
+  begin
+    case(Sel)
+      3'b000: outBus = outR0;
+      3'b001: outBus = outR1;
+      3'b010: outBus = outR2;
+      3'b011: outBus = outR3;
+      3'b100: outBus = outR4;
+      3'b101: outBus = outR5;
+      3'b110: outBus = outR6;
+      3'b111: outBus = outR7;
+    endcase
+  end
+endmodule
+
+module registerFile(input clk, input reset, input regWrite, input [2:0] srcRegA, input [2:0] srcRegB, input [2:0] destReg, input [31:0] writeData, output [31:0] outBusA, output [31:0] outBusB);
+  wire [31:0] opR0,opR1, opR2, opR3, opR4, opR5, opR6, opR7;
+  wire [7:0] decop;
+  decoder d1(destReg,decop);
+  registerSet a1(clk, reset, regWrite, decop,writeData,opR0,opR1,opR2,opR3,opR4,opR5,opR6,opR7);
+  mux8to1 m1(opR0,opR1,opR2,opR3,opR4,opR5,opR6,opR7,srcRegA,outBusA);
+  mux8to1 m2(opR0,opR1,opR2,opR3,opR4,opR5,opR6,opR7,srcRegB,outBusB);
+endmodule
+
+
+module test_registerFile();
+  //inputs
+  reg clk,reset, regWrite;
+  reg [2:0] srcRegA, srcRegB, destReg;
+  reg [31:0] writeData;
+  //outputs
+  wire [31:0] outBusA;
+  wire [31:0] outBusB;
+  registerFile uut(clk,reset,regWrite, srcRegA,srcRegB,destReg,writeData, outBusA, outBusB);
+  
+  always begin #5 clk = ~clk; end
+  
+  initial 
+  begin clk = 0; reset = 1; srcRegA = 5'd0; srcRegB = 5'd0;
+  #5 reset=0; regWrite=1; destReg=3'd0; writeData=32'd8;
+  #10 destReg = 3'd1; writeData = 32'd7;
+  #10 destReg = 3'd2; writeData = 32'd6;
+  #10 destReg = 3'd3; writeData = 32'd5;
+  #10 destReg = 3'd4; writeData = 32'd4;
+  #10 destReg = 3'd5; writeData = 32'd3; 
+  #10 destReg = 3'd6; writeData = 32'd2; 
+  #10 destReg = 3'd7; writeData = 32'd1; 
+  #10 regWrite = 0; srcRegA = 5'd7; srcRegB=5'd6; 
+  #10 srcRegA = 5'd5; srcRegB = 5'd4; 
+  #10 srcRegA=5'd3; srcRegB=5'd2; 
+  #10 srcRegA=5'd1; srcRegB=5'd0; 
+  #10 $finish;
+end
+endmodule
